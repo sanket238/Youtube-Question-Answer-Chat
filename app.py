@@ -29,15 +29,15 @@ def get_llm():
 def load_video_transcript(video_url):
     """Loads and caches the transcript for the given video URL."""
     try:
-        video_id = YoutubeLoader.extract_video_id(video_url)
-        ytt_api = YouTubeTranscriptApi()
-        
-        # Fetch English transcript
-        transcript_list = ytt_api.fetch(video_id, languages=["en"])
-        transcript_list = transcript_list.to_raw_data()
+        loader = YoutubeLoader.from_youtube_url(video_url,add_video_info=False)
+        # Load transcript
+        docs = loader.load()
 
-        # Flatten it to plain text
-        transcript = " ".join([d['text'] for d in transcript_list])
+        if not docs:
+            return "No transcript found."
+
+        # Flatten to plain text
+        transcript = docs[0].page_content.strip()
         return transcript
 
     except TranscriptsDisabled:
